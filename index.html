@@ -76,7 +76,7 @@
     </div>
 
     <!-- Vandiep -->
-    <div id="copyright">© by vandiep</div>
+    <div id="copyright">© by nhn1708</div>
 
     <div id="canvas-container"></div>
     <video class="input_video" style="display:none"></video>
@@ -167,6 +167,7 @@ photoFiles.forEach((f, i) => {
         let groupGold, groupRed, groupGift; 
         let photoMeshes = [];    
         let titleMesh, starMesh, loveMesh;
+        let snow;
         
         let state = 'TREE'; 
         let selectedIndex = 0;
@@ -194,6 +195,7 @@ photoFiles.forEach((f, i) => {
 
             createPhotos();
             createDecorations();
+            createSnow();
             animate();
         }
 
@@ -247,10 +249,10 @@ photoFiles.forEach((f, i) => {
                 phases.push(Math.random() * Math.PI * 2);
             }
 
-            const geo = new THREE.BufferGeometry();
-            geo.setAttribute('position', new THREE.Float32BufferAttribute(pPositions, 3));
-            geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-            
+           const geo = new THREE.BufferGeometry();
+           geo.setAttribute('position', new THREE.Float32BufferAttribute(pPositions, 3));
+           geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
             // Init colors Vandiep
             const colors = new Float32Array(count * 3);
             const baseColor = new THREE.Color();
@@ -320,8 +322,39 @@ photoFiles.forEach((f, i) => {
     photoMeshes.push(mesh);
   }
 }
+
+function createSnow() {
+    const count = 1200;
+    const positions = [];
+    const speeds = [];
+
+    for (let i = 0; i < count; i++) {
+        positions.push(
+            (Math.random() - 0.5) * 200,
+            Math.random() * 150,
+            (Math.random() - 0.5) * 200
+        );
+        speeds.push(0.2 + Math.random() * 0.6);
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.userData = { speeds };
+
+    const mat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1.2,
+        transparent: true,
+        opacity: 0.8,
+        depthWrite: false
+    });
+
+    snow = new THREE.Points(geo, mat);
+    scene.add(snow);
+}
+
         function createDecorations() {
-            // MERRY CHRISTMAS Vandiep
+            // MERRY CHRISTMAS nhn1708
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 256;
             const ctx = canvas.getContext('2d');
@@ -353,7 +386,7 @@ photoFiles.forEach((f, i) => {
             starMesh.position.set(0, CONFIG.treeHeight/2 + 2, 0);
             scene.add(starMesh);
 
-            // I LOVE YOU TEXT Vandiep
+            // I LOVE YOU TEXT nhn1708
             const loveCanvas = document.createElement('canvas');
             loveCanvas.width = 1024; loveCanvas.height = 256;
             const lCtx = loveCanvas.getContext('2d');
@@ -446,6 +479,7 @@ photoFiles.forEach((f, i) => {
 
         function animate() {
             requestAnimationFrame(animate);
+
             const time = Date.now() * 0.001;
             const speed = 0.08;
             const handRotY = (handX - 0.5) * 4.0;
@@ -453,6 +487,21 @@ photoFiles.forEach((f, i) => {
             updateParticleGroup(groupGold, 'gold', state, speed, handRotY, time);
             updateParticleGroup(groupRed, 'red', state, speed, handRotY, time);
             updateParticleGroup(groupGift, 'gift', state, speed, handRotY, time);
+
+        function updateSnow() {
+            if (!snow) return;
+            
+            const pos = snow.geometry.attributes.position;
+            const speeds = snow.geometry.userData.speeds;
+            
+            for (let i = 0; i < pos.count; i++) {
+                pos.array[i * 3 + 1] -= speeds[i];
+                if (pos.array[i * 3 + 1] < -50) {
+                    pos.array[i * 3 + 1] = 150;
+                }
+            }
+            pos.needsUpdate = true;
+        }
 
             photoMeshes.forEach((mesh, i) => {
                 if(!mesh.material.map && photoTextures[i]) {
@@ -476,7 +525,7 @@ photoFiles.forEach((f, i) => {
             } else if (state === 'EXPLODE') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
                 const baseAngle = groupGold.rotation.y; 
-                const angleStep = (Math.PI * 2) / 5;
+                const angleStep = (Math.PI * 2) / 5/ photoMeshes.length;
                 let bestIdx = 0; let maxZ = -999;
                 photoMeshes.forEach((mesh, i) => {
                     mesh.visible = true;
@@ -508,13 +557,25 @@ photoFiles.forEach((f, i) => {
                     }
                 });
             }
+            // ❄️ SNOW FALL
+if (snow) {
+    const pos = snow.geometry.attributes.position.array;
+    const speeds = snow.geometry.userData.speeds;
+
+    for (let i = 0; i < speeds.length; i++) {
+        pos[i * 3 + 1] -= speeds[i];
+        if (pos[i * 3 + 1] < -60) {
+            pos[i * 3 + 1] = 120;
+        }
+    }
+    snow.geometry.attributes.position.needsUpdate = true;
+}
             renderer.render(scene, camera);
         }
 
         function startSystem() {
             document.getElementById('btnStart').style.display = 'none';
             bgMusic.play().catch(e => console.log(e));
-            init3D();
 
             const video = document.getElementsByClassName('input_video')[0];
             const canvas = document.getElementById('camera-preview');
