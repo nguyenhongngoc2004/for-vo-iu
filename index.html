@@ -296,11 +296,9 @@ photoFiles.forEach((f, i) => {
 
 function createPhotos() {
   const geo = new THREE.PlaneGeometry(8, 8);
-  // Tạo viền lớn hơn ảnh một chút để lộ rõ mép
   const borderGeo = new THREE.PlaneGeometry(8.5, 8.5); 
 
   for (let i = 0; i < photoFiles.length; i++) {
-    // 1. Vật liệu cho ảnh: Quan trọng nhất là disable blending nếu không cần thiết
     const mat = new THREE.MeshBasicMaterial({
         map: photoTextures[i],
         side: THREE.DoubleSide,
@@ -308,23 +306,17 @@ function createPhotos() {
         opacity: 1,
         depthTest: true,
         depthWrite: true,
-        // blending: THREE.NormalBlending // Để mặc định hoặc dùng Normal
     });
-
     const mesh = new THREE.Mesh(geo, mat);
-
-    // 2. Vật liệu cho viền: Tạo riêng để tránh lỗi dùng chung thuộc tính
     const borderMat = new THREE.MeshBasicMaterial({
         color: 0xFFD700,
         side: THREE.DoubleSide
     });
     const border = new THREE.Mesh(borderGeo, borderMat);
     
-    // Đẩy viền ra phía sau ảnh một chút xíu (0.05) để tránh bị vàng đè lên ảnh
     border.position.z = -0.05; 
     mesh.add(border);
-
-    // 3. Tính toán vị trí ban đầu để không bị dính chùm
+    
     const angle = (i / photoFiles.length) * Math.PI * 2;
     mesh.position.set(
       Math.cos(angle) * CONFIG.photoOrbitRadius,
