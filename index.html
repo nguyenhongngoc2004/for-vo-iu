@@ -277,7 +277,7 @@ photoFiles.forEach((f, i) => {
                 map: textures[type],
                 transparent: true, 
                 opacity: (type === 'gift') ? 0.85 : 1.0, 
-                vertexColors: true, 
+                vertexColors: (type !== 'gift'), 
                 blending: (type === 'gift') ? THREE.NormalBlending : THREE.AdditiveBlending, 
                 depthWrite: false,
                 sizeAttenuation: true
@@ -286,10 +286,10 @@ photoFiles.forEach((f, i) => {
             const points = new THREE.Points(geo, mat);
             if (type === 'gift') {
                 points.renderOrder = -1;   
+            } else {
+                points.renderOrder = 1;
             }
-            
             scene.add(points);
-            return points;
         }
 
  function createPhotos() {
