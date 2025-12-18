@@ -107,6 +107,9 @@ photoFiles.forEach((f, i) => {
     (tex) => {
       photoTextures[i] = tex;
       loadedCount++;
+    tex.encoding = THREE.sRGBEncoding;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
 
       // 👉 CHỈ khi load xong hết ảnh mới khởi tạo 3D
       if (loadedCount === photoFiles.length) {
@@ -185,6 +188,8 @@ photoFiles.forEach((f, i) => {
             camera.position.z = 100;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.NoToneMapping;
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
@@ -316,7 +321,7 @@ function createPhotos() {
     
     border.position.z = -0.05; 
     mesh.add(border);
-    
+
     const angle = (i / photoFiles.length) * Math.PI * 2;
     mesh.position.set(
       Math.cos(angle) * CONFIG.photoOrbitRadius,
