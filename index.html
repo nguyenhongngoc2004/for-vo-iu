@@ -271,7 +271,15 @@ photoFiles.forEach((f, i) => {
                 tree: pTreeTargets, explode: pExplodeTargets, heart: pHeartTargets, 
                 phases: phases, baseColor: baseColor, baseSize: size
             };
-
+            
+            let blendingMode = THREE.AdditiveBlending;
+            let opacityValue = 1.0;
+            
+            if (type === 'gift') {
+                blendingMode = THREE.NormalBlending; 
+                opacityValue = 0.85;                 
+            }
+            
             const mat = new THREE.PointsMaterial({
                 size: size,
                 map: textures[type],
@@ -298,10 +306,15 @@ photoFiles.forEach((f, i) => {
 
   for (let i = 0; i < photoFiles.length; i++) {
     const mat = new THREE.MeshBasicMaterial({
-      map: photoTextures[i],
-      side: THREE.DoubleSide,
-      transparent: true
+        map: photoTextures[i],
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 1,
+        depthTest: true,
+        depthWrite: true,
+        blending: THREE.NormalBlending
     });
+
 
     const mesh = new THREE.Mesh(geo, mat);
 
@@ -533,7 +546,7 @@ function createSnow() {
                     const x = Math.sin(angle) * CONFIG.photoOrbitRadius;
                     const z = Math.cos(angle) * CONFIG.photoOrbitRadius;
                     const y = Math.sin(time + i) * 3; 
-                    mesh.position.lerp(new THREE.Vector3(x, y, z), 0.1);
+                    mesh.position.lerp(new THREE.Vector3(x, y, z + 5), 0.1);
                     mesh.lookAt(camera.position);
                     if (z > maxZ) { maxZ = z; bestIdx = i; }
                     if (z > 5) { 
@@ -549,7 +562,7 @@ function createSnow() {
                 loveMesh.visible = false;
                 photoMeshes.forEach((mesh, i) => {
                     if (i === selectedIndex) {
-                        mesh.position.lerp(new THREE.Vector3(0, 0, 60), 0.1);
+                        mesh.position.lerp(new THREE.Vector3(0, 0, 80), 0.1);
                         mesh.scale.lerp(new THREE.Vector3(5, 5, 5), 0.1);
                         mesh.lookAt(camera.position); mesh.rotation.z = 0;
                     } else {
